@@ -40,7 +40,6 @@ def extract_frames(path, num_frames):
 
     cap.release()
 
-    # Конвертуємо в PIL
     return [Image.fromarray(cv2.cvtColor(f, cv2.COLOR_BGR2RGB)) for f in frames]
 
 
@@ -69,7 +68,6 @@ def create_directory(path):
 @click.option('--num_frames', default=16, help='Number of frames to extract from each video', type=int)
 @click.option('--threshold', default=0.8, help='Similarity threshold for duplicate detection', type=float)
 def main(path, num_frames, threshold):
-    click.echo('Start embedding videos')
     click.echo('Collect video')
     video_paths = load_videos(path)
     click.echo('Found {} videos'.format(len(video_paths)))
@@ -114,9 +112,14 @@ def main(path, num_frames, threshold):
 
             for pos in range(start, end):
                 vid_idx = indices[pos]
-                duplicates.append(video_paths[vid_idx])
+                duplicate_video_path = video_paths[vid_idx]
+
+                if duplicate_video_path in duplicates:
+                    continue
+
+                duplicates.append(duplicate_video_path)
                 # Copy the video to the results folder
-                os.system(f'cp "{video_paths[vid_idx]}" "results/{folder_idx}/"')
+                os.system(f'cp "{duplicate_video_path}" "results/{folder_idx}/"')
 
             folder_idx += 1
 
